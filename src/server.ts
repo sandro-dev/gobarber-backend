@@ -2,15 +2,14 @@ import express from 'express';
 
 import './database';
 
+import routes from './routes';
+
 const app = express();
 
-app.get('/', (request, response) => {
-  return response.json({
-    ok: true,
-    message: 'This is default route to tests 😉',
-  });
-});
+app.use(routes);
 
-app.listen(3333, () => {
-  console.log('The server is running! ✅');
+const port = process.env.PORT || 3333;
+
+app.listen(port, () => {
+  console.log(`✅ The server is running on port ${port}!`);
 });
