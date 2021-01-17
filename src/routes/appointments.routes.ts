@@ -1,21 +1,35 @@
 import { Router } from 'express';
+import { parseISO } from 'date-fns';
+
+import AppointmentsRepository from '../repositories/AppointmentsRepository';
+import CreateAppointmentService from '../services/CreateAppointmentService';
 
 const appointmentsRoutes = Router();
+const appointmentsRepository = new AppointmentsRepository();
 
 appointmentsRoutes.get('/', (request, response) => {
-  return response.json({ ok: true });
+  const appointments = appointmentsRepository.all();
+  return response.json(appointments);
 });
 
 appointmentsRoutes.post('/', (request, response) => {
-  return response.json({ ok: true });
-});
+  try {
+    const { provider, date } = request.body;
+    const parsedDate = parseISO(date);
 
-appointmentsRoutes.put('/', (request, response) => {
-  return response.json({ ok: true });
-});
+    const createAppointment = new CreateAppointmentService(
+      appointmentsRepository,
+    );
 
-appointmentsRoutes.delete('/', (request, response) => {
-  return response.status(204).send();
+    const appointment = createAppointment.execute({
+      provider,
+      date: parsedDate,
+    });
+
+    return response.json({ ok: true, appointment });
+  } catch (err) {
+    return response.status(400).json({ error: err.message });
+  }
 });
 
 export default appointmentsRoutes;
